@@ -1,0 +1,12 @@
+make[3]: Entering directory '/builder/openwrt/target/linux/mediatek'
+make -C /builder/openwrt/build_dir/target-aarch64_cortex-a53_musl/linux-mediatek_filogic/linux-6.6.63 KCFLAGS="-fmacro-prefix-map=/builder/openwrt/build_dir/target-aarch64_cortex-a53_musl=target-aarch64_cortex-a53_musl" HOSTCFLAGS="-O2 -I/builder/openwrt/staging_dir/host/include" CROSS_COMPILE="aarch64-openwrt-linux-musl-" ARCH="arm64" KBUILD_HAVE_NLS=no KBUILD_BUILD_USER="" KBUILD_BUILD_HOST="" KBUILD_BUILD_TIMESTAMP="Thu Nov 19 08:14:22 2026" KBUILD_BUILD_VERSION="0" KBUILD_HOSTLDFLAGS="-L/builder/openwrt/staging_dir/host/lib" CONFIG_SHELL="bash" V='' cmd_syscalls= KERNELRELEASE=6.6.63 CC="aarch64-openwrt-linux-musl-gcc" modules
+  MODPOST Module.symvers
+ERROR: modpost: "mtk_wed_device_attach" [drivers/net/wireless/mediatek/mt76/mt7915/mt7915e.ko] undefined!
+ERROR: modpost: "mtk_wed_device_start" [drivers/net/wireless/mediatek/mt76/mt7915/mt7915e.ko] undefined!
+ERROR: modpost: "mtk_wed_device_detach" [drivers/net/wireless/mediatek/mt76/mt7915/mt7915e.ko] undefined!
+make[5]: *** [scripts/Makefile.modpost:145: Module.symvers] Error 1
+make[4]: *** [Makefile:1878: modpost] Error 2
+make[3]: *** [Makefile:22: /builder/openwrt/build_dir/target-aarch64_cortex-a53_musl/linux-mediatek_filogic/linux-6.6.63/.modules] Error 2
+make[3]: Leaving directory '/builder/openwrt/target/linux/mediatek'
+time: target/linux/mediatek/compile#48.12#9.41#14.87
+    ERROR: target/linux/mediatek failed to build.
