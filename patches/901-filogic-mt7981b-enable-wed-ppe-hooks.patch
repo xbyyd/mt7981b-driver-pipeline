@@ -1,0 +1,28 @@
+--- a/target/linux/mediatek/filogic/config-6.6
++++ b/target/linux/mediatek/filogic/config-6.6
+@@ -312,7 +312,9 @@ CONFIG_NET_MEDIATEK_SOC=y
+ CONFIG_NET_MEDIATEK_SOC_USXGMII=y
+-# CONFIG_NET_MEDIATEK_SOC_WED is not set
++CONFIG_NET_MEDIATEK_SOC_WED=y
++CONFIG_NET_MEDIATEK_SOC_WED_DEBUGFS=y
++CONFIG_NET_MEDIATEK_SOC_PPE=y
+ CONFIG_NET_PTP_CLASSIFY=y
+--- a/arch/arm64/boot/dts/mediatek/mt7981b.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt7981b.dtsi
+@@ -418,6 +418,17 @@
+ 		};
+ 	};
+ 
++	wed0: wed@15010000 {
++		compatible = "mediatek,mt7981-wed", "syscon";
++		reg = <0 0x15010000 0 0x1000>;
++		interrupt-parent = <&gic>;
++		interrupts = <GIC_SPI 205 IRQ_TYPE_LEVEL_HIGH>;
++		memory-region = <&wo_emi0>, <&wo_ilm0>, <&wo_dlm0>, <&wo_data>, <&wo_boot>;
++		mediatek,wo-ccif = <&wo_ccif0>;
++		mediatek,wo-dlm = <&wo_dlm0>;
++		mediatek,wo-boot = <&wo_boot>;
++	};
++
+ 	eth: ethernet@15100000 {
+ 		compatible = "mediatek,mt7981-eth";
