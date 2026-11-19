@@ -19,13 +19,16 @@ MT7981B board.
 Character count of the code block above, excluding newlines: roughly 480 —
 too long for a single tweet. Split into a thread, or use the short version.
 
-## Short version (fits one post, ~270 chars)
+## Short version (fits one post, ~250 chars, with the hashtag)
 
 ```
 Porting MT7981B (Filogic 820) PPE/WED hooks into OpenWrt 24.10 in a Docker build
 pipeline. Blocker: modpost "mtk_wed_device_attach [mt7981b_ppe] undefined!" —
 CONFIG_NET_MEDIATEK_SOC_WED off, symbol never reaches Module.symvers.
-Repo + log: github.com/xbyyd/mt7981b-driver-pipeline
+
+Dockerfile + build script + log: github.com/xbyyd/mt7981b-driver-pipeline
+
+#DevinBots
 ```
 
 ## Thread follow-up (optional, post as reply)
