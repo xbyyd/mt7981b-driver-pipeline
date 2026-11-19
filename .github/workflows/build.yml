@@ -1,9 +1,8 @@
 name: build
 
 on:
-  push:
-    branches: [main]
-  pull_request:
+  # heavy: pulls the OpenWrt tree and a ~1.2 GB image, ~60-90 min on a 4 core
+  # runner. Triggered by hand so a push does not queue a 90 minute job.
   workflow_dispatch:
 
 jobs:
