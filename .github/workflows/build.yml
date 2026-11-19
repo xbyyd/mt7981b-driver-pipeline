@@ -1,0 +1,44 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  module:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build the pipeline image
+        run: docker build -t mt7981b-pipeline .
+
+      - name: Run the pipeline (00 -> 04)
+        # The module does not link yet: modpost reports two undefined WED
+        # symbols. Keep the run green so the logs still get published, the
+        # failure itself is asserted below.
+        continue-on-error: true
+        run: docker run --rm -v "$PWD/logs:/build/logs" mt7981b-pipeline
+
+      - name: Assert the known modpost failure
+        run: |
+          set +e
+          grep -q 'ERROR: modpost: "mtk_wed_device_attach" \[mt7981b_ppe\] undefined!' logs/build-*.log
+          rc=$?
+          if [ $rc -ne 0 ]; then
+            echo "::error::expected the MT7981B WED symbol failure, got something else - see logs"
+            exit 1
+          fi
+          echo "known failure reproduced as expected"
+
+      - name: Upload build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: logs/
+          retention-days: 30

@@ -1,0 +1,18 @@
+# build artefacts
+*.o
+*.ko
+*.mod
+*.mod.c
+*.symvers
+*.order
+
+# openwrt tree pulled by 01-fetch-openwrt.sh
+/openwrt/
+/.config
+/config-*
+
+# editor / os noise
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/

@@ -1,0 +1,36 @@
+diff --git a/target/linux/mediatek/patches-6.6/999-mt7981b-export-wed-symbols.patch b/target/linux/mediatek/patches-6.6/999-mt7981b-export-wed-symbols.patch
+new file mode 100644
+--- /dev/null
++++ b/target/linux/mediatek/patches-6.6/999-mt7981b-export-wed-symbols.patch
+@@ -0,0 +1,31 @@
++From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
++From: <your-github-user> <you@example.com>
++Date: Sat, 15 Nov 2026 21:40:12 +0800
++Subject: [PATCH] mediatek: export WED glue symbols for out-of-tree PPE users
++
++The filogic kernel builds mtk_wed into the image, but the two entry points
++are only exported when CONFIG_NET_MEDIATEK_SOC_WED is enabled. Out-of-tree
++modules that attach to the WED path therefore fail at modpost with
++"undefined!" - see the build log in this repository.
++
++---
++ drivers/net/ethernet/mediatek/mtk_wed.c | 2 ++
++ 1 file changed, 2 insertions(+)
++
++diff --git a/drivers/net/ethernet/mediatek/mtk_wed.c b/drivers/net/ethernet/mediatek/mtk_wed.c
++index 5d1e0c4a7b..b8f2e93c11 100644
++--- a/drivers/net/ethernet/mediatek/mtk_wed.c
+++++ b/drivers/net/ethernet/mediatek/mtk_wed.c
++@@ -2418,5 +2418,7 @@ int mtk_wed_device_attach(struct mtk_wed_device *dev)
++ 	if (ret)
++ 		return ret;
++ 
++ 	return 0;
++ }
+++EXPORT_SYMBOL_GPL(mtk_wed_device_attach);
+++
++ static void mtk_wed_device_detach(struct mtk_wed_device *dev)
++
++2.43.0
++
++

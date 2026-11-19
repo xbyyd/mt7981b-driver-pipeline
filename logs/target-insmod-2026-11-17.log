@@ -1,0 +1,34 @@
+# capture: serial console on the test board, 2026-11-17T22:06Z
+# board: MT7981B reference board, OpenWrt 24.10 snapshot (linux 6.6.73)
+# build under test: module built from current main (symbols stubbed, not exported)
+root@OpenWrt:~# uname -a
+Linux OpenWrt 6.6.73 #1 SMP PREEMPT Sat Nov 15 12:04:19 UTC 2026 aarch64 GNU/Linux
+
+root@OpenWrt:~# ls -l /tmp/mt7981b_ppe.ko
+-rw-r--r--    1 root     root         18432 Nov 17 22:04 /tmp/mt7981b_ppe.ko
+
+root@OpenWrt:~# insmod /tmp/mt7981b_ppe.ko
+[  312.441203] mt7981b_ppe: loading out-of-tree module taints kernel.
+insmod: ERROR: could not insert module /tmp/mt7981b_ppe.ko: Unknown symbol in module
+
+root@OpenWrt:~# dmesg | tail -n 4
+[  312.441203] mt7981b_ppe: loading out-of-tree module taints kernel.
+[  312.441497] mt7981b_ppe: Unknown symbol mtk_wed_device_attach (err -2)
+[  312.441612] mt7981b_ppe: Unknown symbol mtk_ppe_wed_bind (err -2)
+[  312.441998] insmod: can't insert '/tmp/mt7981b_ppe.ko': unknown symbol in module
+
+root@OpenWrt:~# grep -E 'mtk_wed|mtk_ppe' /proc/kallsyms | head -n 8
+ffff8000105c0000 T mtk_ppe_init
+ffff8000105c1f10 T mtk_ppe_deinit
+ffff8000106a2b40 t mtk_wed_device_attach
+ffff8000106a3c88 t mtk_wed_device_detach
+ffff8000106a4410 t mtk_wed_device_start
+ffff8000106a47e0 t mtk_wed_setup_tc_block_cb
+
+root@OpenWrt:~# grep -c 'mtk_wed_device_attach\|mtk_ppe_wed_bind' /lib/modules/6.6.73/modules.symvers 2>/dev/null || echo "no modules.symvers on target"
+0
+
+# read: mtk_wed_device_attach is present in the image (T/t in kallsyms) but
+# lowercase 't' = local, i.e. unexported. insmod resolution only sees
+# EXPORT_SYMBOL entries, hence err -2 (ENOENT). Matches the modpost failure
+# in logs/build-2026-11-18-modpost.log - same root cause, two symptoms.

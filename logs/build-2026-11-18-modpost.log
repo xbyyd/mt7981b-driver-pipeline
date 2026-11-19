@@ -1,0 +1,53 @@
+# capture: docker run --rm -v "$PWD/logs:/build/logs" mt7981b-pipeline
+# host: x86_64, 12 cores, Docker 27.3.1
+# image: mt7981b-pipeline:latest (ubuntu:22.04 + openwrt build deps)
+# tree:  openwrt-24.10 @ 2f1c3a9b7e, target mediatek/filogic, linux 6.6.73
+# date:  2026-11-18T09:14:02Z
+---- 04-build ----
+make -j8 package/kernel/mt7981b-ppe/compile V=s
+make[2]: Entering directory '/build/openwrt'
+Collecting package info: done
+WARNING: Makefile 'package/kernel/mt7981b-ppe/Makefile' has a dependency on 'kmod-nf-conntrack', which does not exist
+make[3]: Entering directory '/build/openwrt'
+make[3]: Entering directory '/build/openwrt'
+make[4]: Entering directory '/build/openwrt/build_dir/target-aarch64_cortex-a53_musl/linux-mediatek_filogic'
+mkdir -p /build/openwrt/build_dir/target-aarch64_cortex-a53_musl/linux-mediatek_filogic/mt7981b-ppe
+cp -fpR ./src/. /build/openwrt/build_dir/target-aarch64_cortex-a53_musl/linux-mediatek_filogic/mt7981b-ppe/
+touch /build/openwrt/build_dir/target-aarch64_cortex-a53_musl/linux-mediatek_filogic/mt7981b-ppe/.prepared_0f41a3e0d5b1c0b1
+make -C "/build/openwrt/build_dir/target-aarch64_cortex-a53_musl/linux-mediatek_filogic/linux-6.6.73" \
+	ARCH="arm64" \
+	CROSS_COMPILE="/build/openwrt/staging_dir/toolchain-aarch64_cortex-a53_gcc-13.3.0_musl/bin/aarch64-openwrt-linux-musl-" \
+	M="/build/openwrt/build_dir/target-aarch64_cortex-a53_musl/linux-mediatek_filogic/mt7981b-ppe" \
+	modules
+make[5]: Entering directory '/build/openwrt/build_dir/target-aarch64_cortex-a53_musl/linux-mediatek_filogic/linux-6.6.73'
+  CC [M]  /build/openwrt/build_dir/target-aarch64_cortex-a53_musl/linux-mediatek_filogic/mt7981b-ppe/mt7981b_ppe.o
+  MODPOST /build/openwrt/build_dir/target-aarch64_cortex-a53_musl/linux-mediatek_filogic/mt7981b-ppe/Module.symvers
+ERROR: modpost: "mtk_wed_device_attach" [mt7981b_ppe] undefined!
+ERROR: modpost: "mtk_ppe_wed_bind" [mt7981b_ppe] undefined!
+make[6]: *** [scripts/Makefile.modpost:133: /build/openwrt/build_dir/target-aarch64_cortex-a53_musl/linux-mediatek_filogic/mt7981b-ppe/Module.symvers] Error 1
+make[5]: *** [Makefile:1858: modpost] Error 2
+make[5]: Leaving directory '/build/openwrt/build_dir/target-aarch64_cortex-a53_musl/linux-mediatek_filogic/linux-6.6.73'
+make[4]: *** [Makefile:234: /build/openwrt/build_dir/target-aarch64_cortex-a53_musl/linux-mediatek_filogic/mt7981b-ppe/.built] Error 2
+make[4]: Leaving directory '/build/openwrt/build_dir/target-aarch64_cortex-a53_musl/linux-mediatek_filogic'
+make[3]: *** [package/Makefile:172: package/kernel/mt7981b-ppe/compile] Error 2
+make[3]: Leaving directory '/build/openwrt'
+make[2]: *** [/build/openwrt/include/toplevel.mk:233: package/kernel/mt7981b-ppe/compile] Error 2
+make[2]: Leaving directory '/build/openwrt'
+make[1]: *** [Makefile:13: _single] Error 2
+make: *** [package/kernel/mt7981b-ppe/compile] Error 2
+---- summary ----
+build exit code: 2
+ERROR: modpost: "mtk_wed_device_attach" [mt7981b_ppe] undefined!
+ERROR: modpost: "mtk_ppe_wed_bind" [mt7981b_ppe] undefined!
+
+# --- triage, run right after the failure ---
+# $ grep -i 'NET_MEDIATEK_SOC_WED' .config
+# CONFIG_NET_MEDIATEK_SOC_WED is not set
+# $ grep -c 'mtk_wed_device_attach\|mtk_ppe_wed_bind' \
+#       build_dir/target-aarch64_cortex-a53_musl/linux-mediatek_filogic/Module.symvers
+# 0
+# $ grep -n 'mtk_wed_device_attach' drivers/net/ethernet/mediatek/mtk_wed.c
+# 2418:int mtk_wed_device_attach(struct mtk_wed_device *dev)
+#
+# symbol exists in the image source, is compiled in, but never exported
+# because the WED glue block is behind CONFIG_NET_MEDIATEK_SOC_WED.
